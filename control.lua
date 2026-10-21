@@ -83,10 +83,8 @@ local function init_Pollution_Detectors()
         -- log("storage is nil for init_Pollution_Detectors.")
         storage = {}
     end
-    if storage.Pollution_Detectors == nil then
-        -- log("storage.Pollution_Detectors is nil for init_Pollution_Detectors.")
-        storage.Pollution_Detectors = {}
-    end
+    -- rebuilt from scratch: on_configuration_changed runs this again for detectors already in the list
+    storage.Pollution_Detectors = {}
     for _, surface in pairs(game.surfaces) do
         -- log("surface.name: " .. surface.name)
         pollution_detectors = surface.find_entities_filtered {
