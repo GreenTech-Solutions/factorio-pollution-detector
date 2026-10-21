@@ -36,7 +36,8 @@ function OnEntityRemoved(event)
     if event.entity.name == "pollution-detector" then
 
         for i = #storage.Pollution_Detectors, 1, -1 do
-            if storage.Pollution_Detectors[i].unit_number == event.entity.unit_number then
+            local pollution_detector = storage.Pollution_Detectors[i]
+            if not pollution_detector.valid or pollution_detector.unit_number == event.entity.unit_number then
                 table.remove(storage.Pollution_Detectors, i)
             end
         end
@@ -54,6 +55,11 @@ function OnTick(event)
     local offset = event.tick % update_interval
     for i = #storage.Pollution_Detectors - offset, 1, -1 * update_interval do
         local pollution_detector = storage.Pollution_Detectors[i]
+        -- a detector destroyed without one of the removal events (script, deleted surface) is dropped here
+        if not pollution_detector.valid then
+            table.remove(storage.Pollution_Detectors, i)
+            goto continue
+        end
         local pollution_count = floor(pollution_detector.surface.get_pollution(pollution_detector.position) * multiplier)
         local signal = { value = "pd-pollution", min = pollution_count }
         -- Section clear code: copied from "PollutionCombinator-JamieFork".
@@ -65,6 +71,7 @@ function OnTick(event)
             return false;
         end
         section.set_slot(1, signal)
+        ::continue::
     end
 end
 
